@@ -1,0 +1,12 @@
+# CS 470/547: Computer Vision and Image Processing
+***Fall 2026***  
+***Author: YOUR NAME HERE***  
+***Original Author: Dr. Michael J. Reale***  
+***SUNY Polytechnic Institute*** 
+
+## Runnable Python Scripts
+
+### BasicVision.py
+
+A basic sample that loads up the relevant libraries, prints versions numbers, and either 1) loads an image from a path specified on the command line, or 2) opens a webcam.
+Image(s) will be displayed until a key is hit.
