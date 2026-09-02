@@ -19,6 +19,8 @@ def main():
         gradient = cv2.convertScaleAbs(float_gradient)
                     
         cv2.imshow("Gradient", gradient)
+        cv2.imshow("Float Gradient", float_gradient)
+        
         key = cv2.waitKey(33)
         
         if key == ord('q'): max_gray += 5
