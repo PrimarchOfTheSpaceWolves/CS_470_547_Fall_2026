@@ -19,7 +19,7 @@ def main():
         gradient = cv2.convertScaleAbs(float_gradient)
                     
         cv2.imshow("Gradient", gradient)
-        cv2.imshow("Float Gradient", float_gradient)
+        cv2.imshow("Float Gradient", float_gradient/255.0)
         
         key = cv2.waitKey(33)
         
