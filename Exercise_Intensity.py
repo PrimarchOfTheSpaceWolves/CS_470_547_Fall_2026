@@ -11,6 +11,11 @@ import sklearn
 import timm
 import torchvision
 
+def do_transform(image, chosenT):
+    output = np.copy(image)
+    transform = np.arange(256, dtype="uint8")
+    return output, transform
+
 ###############################################################################
 # MAIN
 ###############################################################################
