@@ -11,6 +11,11 @@ import sklearn
 import timm
 import torchvision
 import matplotlib.pyplot as plt
+from enum import Enum
+
+class IntTransform(Enum):
+    ORIGINAL = "Original"
+    NEGATIVE = "Negative"
 
 def create_transform_plot(transform, title="Transformation"):
     fig, subfig = plt.subplots(1, 1, figsize=(5,5))
@@ -37,8 +42,13 @@ def update_transform_plot(transform, fig, fill, line):
     fig.canvas.flush_events()    
 
 def do_transform(image, chosenT):
-    output = np.copy(image)
-    transform = np.arange(256, dtype="uint8")
+    if chosenT == IntTransform.ORIGINAL:
+        output = np.copy(image)
+        transform = np.arange(256, dtype="uint8")
+    elif chosenT == IntTransform.NEGATIVE:
+        output = 255 - image
+        transform = np.arange(255, -1, -1, dtype="uint8")
+                
     return output, transform
 
 ###############################################################################
@@ -70,6 +80,12 @@ def main():
     
     
     chosenT = 0
+    print("INTENSITY TRANSFORMS:")
+    for index, item in enumerate(list(IntTransform)):
+        print(index, "-", item.value)
+    chosenT = list(IntTransform)[int(input("Enter choice: "))] 
+    
+    
     plt.ion()
     fig, fill, line = create_transform_plot(np.arange(256, dtype="uint8"))
         
