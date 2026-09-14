@@ -10,6 +10,31 @@ import pandas
 import sklearn
 import timm
 import torchvision
+import matplotlib.pyplot as plt
+
+def create_transform_plot(transform, title="Transformation"):
+    fig, subfig = plt.subplots(1, 1, figsize=(5,5))
+    x = np.arange(256)
+    line = subfig.plot(x, transform, color="black", linewidth=1)
+    fill = subfig.fill_between(x, transform, color="gray", alpha=0.5)
+    subfig.set_xlim([0,255])
+    subfig.set_ylim([0,255])
+    subfig.set_xlabel("Input intensity")
+    subfig.set_ylabel("Output intensity")
+    subfig.set_title(title)
+    return fig, fill, line[0]
+
+def update_transform_plot(transform, fig, fill, line):
+    line.set_ydata(transform)
+    
+    x_coords = np.arange(256)
+    x_coords = np.append(x_coords, [255,0])
+    y_coords = np.copy(transform)
+    y_coords = np.append(y_coords, [0,0])
+    fill.set_verts([np.column_stack([x_coords,y_coords])])
+    
+    fig.canvas.draw()
+    fig.canvas.flush_events()    
 
 def do_transform(image, chosenT):
     output = np.copy(image)
@@ -42,6 +67,11 @@ def main():
     print("OpenCV:", cv2.__version__)
     print("Pandas:", pandas.__version__)
     print("Scikit-Learn:", sklearn.__version__)
+    
+    
+    chosenT = 0
+    plt.ion()
+    fig, fill, line = create_transform_plot(np.arange(256, dtype="uint8"))
         
     ###############################################################################
     # OPENCV
@@ -71,16 +101,22 @@ def main():
             frame_index = int(capture.get(cv2.CAP_PROP_POS_FRAMES))
             if frame_cnt != -1 and frame_cnt == frame_index:
                 capture.set(cv2.CAP_PROP_POS_FRAMES, 0)
+                
+            grayscale = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+            output, transform = do_transform(grayscale, chosenT)
     
             # Show the image
-            cv2.imshow(windowName, image)
-
+            cv2.imshow(windowName, grayscale)
+            cv2.imshow("Transformed", output)
+            update_transform_plot(transform, fig, fill, line)           
+            
             # Wait 30 milliseconds, and grab any key presses
             key = cv2.waitKey(30)
 
         # Release the camera and destroy the window
         capture.release()
         cv2.destroyAllWindows()
+        plt.close()
 
         # Close down...
         print("Closing application...")
