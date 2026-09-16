@@ -16,6 +16,22 @@ from enum import Enum
 class IntTransform(Enum):
     ORIGINAL = "Original"
     NEGATIVE = "Negative"
+    SLICE = "Intensity Slicing"
+    
+def do_transform(image, chosenT, sliceMin=100, sliceMax=150):
+    if chosenT == IntTransform.ORIGINAL:
+        output = np.copy(image)
+        transform = np.arange(256, dtype="uint8")
+    elif chosenT == IntTransform.NEGATIVE:
+        output = 255 - image
+        transform = np.arange(255, -1, -1, dtype="uint8")
+    elif chosenT == IntTransform.SLICE:
+        lut = np.zeros(256, dtype="uint8")
+        lut[sliceMin:(sliceMax+1)] = 255
+        output = lut[image]
+        transform = lut
+                
+    return output, transform
 
 def create_transform_plot(transform, title="Transformation"):
     fig, subfig = plt.subplots(1, 1, figsize=(5,5))
@@ -40,16 +56,6 @@ def update_transform_plot(transform, fig, fill, line):
     
     fig.canvas.draw()
     fig.canvas.flush_events()    
-
-def do_transform(image, chosenT):
-    if chosenT == IntTransform.ORIGINAL:
-        output = np.copy(image)
-        transform = np.arange(256, dtype="uint8")
-    elif chosenT == IntTransform.NEGATIVE:
-        output = 255 - image
-        transform = np.arange(255, -1, -1, dtype="uint8")
-                
-    return output, transform
 
 ###############################################################################
 # MAIN
