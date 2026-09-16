@@ -80,6 +80,23 @@ def update_transform_plot(transform, fig, fill, line):
     
     fig.canvas.draw()
     fig.canvas.flush_events()    
+    
+def create_histogram_plot(image, title):
+    fig, subfig = plt.subplots(1, 1, figsize=(5,5))
+    x_values = np.arange(256)
+    counts, _ = np.histogram(image.flatten(), bins=256, range=[0,256])
+    bars = subfig.bar(x_values, counts, color="black", width=1.0)
+    subfig.set_xlim([-5, 260])
+    subfig.set_xlabel("Intensity")
+    subfig.set_title(title)
+    return fig, bars
+
+def update_histogram_plot(image, fig, bars):
+    counts, _ = np.histogram(image.flatten(), bins=256, range=[0,256])
+    for count, bar in zip(counts, bars):
+        bar.set_height(count)
+    fig.canvas.draw()
+    fig.canvas.flush_events()
 
 ###############################################################################
 # MAIN
