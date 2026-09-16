@@ -17,8 +17,11 @@ class IntTransform(Enum):
     ORIGINAL = "Original"
     NEGATIVE = "Negative"
     SLICE = "Intensity Slicing"
+    PIECEWISE = "Piecewise Linear"
     
-def do_transform(image, chosenT, sliceMin=100, sliceMax=150):
+def do_transform(image, chosenT, 
+                 sliceMin=100, sliceMax=150,
+                 piecePoints=[[0,0], [127,50], [150,200], [255,255]]):
     if chosenT == IntTransform.ORIGINAL:
         output = np.copy(image)
         transform = np.arange(256, dtype="uint8")
@@ -28,6 +31,27 @@ def do_transform(image, chosenT, sliceMin=100, sliceMax=150):
     elif chosenT == IntTransform.SLICE:
         lut = np.zeros(256, dtype="uint8")
         lut[sliceMin:(sliceMax+1)] = 255
+        output = lut[image]
+        transform = lut
+    elif chosenT == IntTransform.PIECEWISE:
+        #r_knots, s_knots = zip(*piecePoints)
+        #print(r_knots)
+        #print(s_knots)
+        
+        #points = np.array(piecePoints)
+        #points = np.transpose(points, axes=(1,0))
+        #r_knots = points[0]
+        #s_knots = points[1]
+        
+        points = np.array(piecePoints)
+        r_knots = points[:,0]
+        s_knots = points[:,1]
+        
+        one_inter = lambda r: np.interp(r, r_knots, s_knots)
+        r = np.arange(256, dtype="float64")
+        lut = one_inter(r)
+        lut = np.clip(np.round(lut), 0, 255).astype("uint8")
+        
         output = lut[image]
         transform = lut
                 
@@ -95,6 +119,10 @@ def main():
     plt.ion()
     fig, fill, line = create_transform_plot(np.arange(256, dtype="uint8"))
         
+    piecePoints=[[0,0], [127,50], 
+                 [150,200], [255,255]]
+    py = 50
+        
     ###############################################################################
     # OPENCV
     ###############################################################################
@@ -115,7 +143,8 @@ def main():
 
         # While not closed...
         key = -1
-        while key == -1:
+        ESC_KEY = 27
+        while key != ESC_KEY:
             # Get next frame from camera
             _, image = capture.read()
             
@@ -124,16 +153,23 @@ def main():
             if frame_cnt != -1 and frame_cnt == frame_index:
                 capture.set(cv2.CAP_PROP_POS_FRAMES, 0)
                 
+            piecePoints[1][1] = py
+                
             grayscale = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
-            output, transform = do_transform(grayscale, chosenT)
+            output, transform = do_transform(grayscale, chosenT,
+                                             piecePoints=piecePoints)
     
             # Show the image
             cv2.imshow(windowName, grayscale)
             cv2.imshow("Transformed", output)
-            update_transform_plot(transform, fig, fill, line)           
+            update_transform_plot(transform, fig, fill, line)     
+                
             
             # Wait 30 milliseconds, and grab any key presses
             key = cv2.waitKey(30)
+            
+            if key == ord("q"): py += 5
+            if key == ord("a"): py -= 5
 
         # Release the camera and destroy the window
         capture.release()
