@@ -87,12 +87,14 @@ def create_histogram_plot(image, title):
     counts, _ = np.histogram(image.flatten(), bins=256, range=[0,256])
     bars = subfig.bar(x_values, counts, color="black", width=1.0)
     subfig.set_xlim([-5, 260])
+    subfig.set_ylim([0, 0.2])
     subfig.set_xlabel("Intensity")
     subfig.set_title(title)
     return fig, bars
 
 def update_histogram_plot(image, fig, bars):
     counts, _ = np.histogram(image.flatten(), bins=256, range=[0,256])
+    counts = counts/np.sum(counts)
     for count, bar in zip(counts, bars):
         bar.set_height(count)
     fig.canvas.draw()
@@ -135,6 +137,11 @@ def main():
     
     plt.ion()
     fig, fill, line = create_transform_plot(np.arange(256, dtype="uint8"))
+    
+    hist_fig, hist_bar = create_histogram_plot(np.zeros((1,1)),
+                                               "Input Hist")
+    out_hist_fig, out_hist_bar = create_histogram_plot(np.zeros((1,1)),
+                                                       "Output Hist")
         
     piecePoints=[[0,0], [127,50], 
                  [150,200], [255,255]]
@@ -180,7 +187,9 @@ def main():
             cv2.imshow(windowName, grayscale)
             cv2.imshow("Transformed", output)
             update_transform_plot(transform, fig, fill, line)     
-                
+            
+            update_histogram_plot(grayscale, hist_fig, hist_bar)
+            update_histogram_plot(output, out_hist_fig, out_hist_bar)                
             
             # Wait 30 milliseconds, and grab any key presses
             key = cv2.waitKey(30)
