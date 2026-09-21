@@ -18,6 +18,7 @@ class IntTransform(Enum):
     NEGATIVE = "Negative"
     SLICE = "Intensity Slicing"
     PIECEWISE = "Piecewise Linear"
+    HISTEQUAL = "Histogram Equalization"
     
 def do_transform(image, chosenT, 
                  sliceMin=100, sliceMax=150,
@@ -54,7 +55,14 @@ def do_transform(image, chosenT,
         
         output = lut[image]
         transform = lut
-                
+    elif chosenT == IntTransform.HISTEQUAL:
+        output = cv2.equalizeHist(image)
+        hist, _ = np.histogram(image, bins=256, range=[0,256])
+        hist = hist / np.sum(hist)
+        cdf = np.cumsum(hist)
+        transform = 255 * cdf
+        transform = np.clip(np.round(transform), 0, 255).astype("uint8")
+                        
     return output, transform
 
 def create_transform_plot(transform, title="Transformation"):
@@ -192,7 +200,7 @@ def main():
             update_histogram_plot(output, out_hist_fig, out_hist_bar)                
             
             # Wait 30 milliseconds, and grab any key presses
-            key = cv2.waitKey(30)
+            key = cv2.waitKey(15)
             
             if key == ord("q"): py += 5
             if key == ord("a"): py -= 5
