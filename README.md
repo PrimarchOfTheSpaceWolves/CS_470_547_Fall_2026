@@ -15,4 +15,12 @@ Image(s) will be displayed until a key is hit.
 
 A simple exercise that shows off NumPy/OpenCV code (the professor version :).
 
+### ProfExercise_Intensity
+
+A basic demo of intensity transformations.
+
+### ProfExercise_LearnGray
+
+Uses NN to learn grayscale transform.
+
 
