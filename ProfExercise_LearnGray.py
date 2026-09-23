@@ -45,6 +45,17 @@ def main():
     conv_layer = nn.Conv2d(3, 1, 1, bias=False)
     model = nn.Sequential(conv_layer)
     print(model)
+    
+    loss_fn = nn.MSELoss()
+    optimizer = torch.optim.Adam(model.parameters(), lr=1e-3)
+    
+    device = "cuda" # "cpu"
+    model = model.to(device)
+    
+    data_transform = v2.Compose([
+        v2.ToImage(),
+        v2.ToDtype(torch.float32, scale=True)
+    ])
             
     ###############################################################################
     # OPENCV
@@ -73,6 +84,16 @@ def main():
                 capture.set(cv2.CAP_PROP_POS_FRAMES, 0)
                 
             grayscale = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+            
+            desired_output = np.expand_dims(grayscale, axis=-1)
+            desired_output = data_transform(desired_output)
+            desired_output = torch.unsqueeze(desired_output, 0)
+            
+            data_input = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
+            data_input = data_transform(data_input)
+            data_input = torch.unsqueeze(data_input, 0)
+            
+            # print(data_input.shape, desired_output.shape)
             
             # Show the image
             cv2.imshow("Original", image)
