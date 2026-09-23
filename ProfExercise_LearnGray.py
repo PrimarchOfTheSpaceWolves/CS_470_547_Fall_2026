@@ -93,6 +93,24 @@ def main():
             data_input = data_transform(data_input)
             data_input = torch.unsqueeze(data_input, 0)
             
+            model.train()
+            data_input = data_input.to(device)
+            desired_output = desired_output.to(device)
+            pred_output = model(data_input)
+            loss = loss_fn(pred_output, desired_output)
+            loss.backward()
+            optimizer.step()
+            optimizer.zero_grad()
+            
+            out_image = pred_output.detach().cpu()
+            out_image = out_image.numpy()
+            out_image = out_image[0]
+            out_image = np.transpose(out_image, [1,2,0])
+            cv2.imshow("Output", out_image)
+            
+            print("Loss:", loss.detach().item())
+            print("Weights:", conv_layer.weight.detach().cpu().numpy())
+            
             # print(data_input.shape, desired_output.shape)
             
             # Show the image
