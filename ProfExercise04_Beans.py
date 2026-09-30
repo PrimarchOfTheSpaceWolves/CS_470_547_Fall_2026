@@ -39,7 +39,9 @@ def main():
     train_iter = iter(train_ds)
     
     for _ in range(3):
-        X,y = next(train_iter)
+        batch = next(train_iter)
+        X = batch["image"]
+        y = batch["labels"]
         X = X.numpy()
         y = y.numpy()
         for i in range(batch_size):
@@ -49,7 +51,7 @@ def main():
             img = cv2.resize(img, dsize=(256,256))
                         
             label_index = y[i]
-            label = training_data.classes[label_index]
+            label = "TODO" # training_data.classes[label_index]
             window_name = "Img%02d_%s" % (i, label)
             cv2.imshow(window_name, img)
         cv2.waitKey(-1)
