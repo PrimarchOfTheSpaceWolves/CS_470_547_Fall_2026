@@ -27,7 +27,21 @@ class CatDogDataset(Dataset):
         return len(self.filenames)
     
     def __getitem__(self, idx):
-        pass
+        filename = self.filenames[idx]
+        if "cat" in filename:
+            label = 0
+        else:
+            label = 1
+        fullpath = os.path.join(self.baseDir, filename)
+        image = decode_image(fullpath)
+        
+        if self.transform is not None:
+            image = self.transform(image)
+            
+        if self.target_transform is not None:
+            label = self.target_transform(label)
+            
+        return image, label
 
 def main():
     data_transform = v2.Compose([
