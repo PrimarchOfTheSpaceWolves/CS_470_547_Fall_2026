@@ -7,32 +7,34 @@ import cv2
 import numpy as np
 
 def main():
-    data_transform = v2.Compose([
+    base_transform = v2.Compose([
         v2.Resize((256,256)),
         v2.ToImage(),
         v2.ToDtype(torch.float32, scale=True)
     ])
     
-    target_transform = v2.Compose([
-        v2.Resize((256,256),
-                  interpolation=v2.InterpolationMode.NEAREST),
-        v2.ToImage()
+    aug_transform = v2.Compose([
+        v2.ToImage(),
+        v2.RandomResizedCrop((256,256)),
+        v2.RandomHorizontalFlip(),
+        v2.RandomRotation(10),
+        v2.ToDtype(torch.float32, scale=True)
     ])
-    
+        
     training_data = datasets.OxfordIIITPet(root="data", 
                                      split="trainval", 
-                                     transform=data_transform,
-                                     target_transform=target_transform,
+                                     transforms=aug_transform,
                                      target_types="segmentation",
                                      download=True)
     
     testing_data = datasets.OxfordIIITPet(root="data", 
                                      split="test", 
-                                     transform=data_transform,
-                                     target_transform=target_transform,
+                                     transforms=base_transform,
                                      target_types="segmentation",
                                      download=True)
-    
+    training_data = datasets.wrap_dataset_for_transforms_v2(training_data)
+    testing_data = datasets.wrap_dataset_for_transforms_v2(testing_data)
+            
     batch_size = 5
     train_ds = DataLoader(training_data, 
                           batch_size=batch_size,
