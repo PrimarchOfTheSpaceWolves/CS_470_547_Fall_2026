@@ -20,17 +20,29 @@ def main():
         v2.RandomRotation(10),
         v2.ToDtype(torch.float32, scale=True)
     ])
+    
+    def all_base_transform(image, targets):
+        seg, label = targets
+        seg = torchvision.tv_tensors.Mask(seg)
+        image, seg = base_transform(image, seg)
+        return image,(seg, label)
+    
+    def all_aug_transform(image, targets):
+        seg, label = targets
+        seg = torchvision.tv_tensors.Mask(seg)
+        image, seg = aug_transform(image, seg)
+        return image,(seg, label)
         
     training_data = datasets.OxfordIIITPet(root="data", 
                                      split="trainval", 
-                                     transforms=aug_transform,
-                                     target_types="segmentation",
+                                     transforms=all_aug_transform,
+                                     target_types=["segmentation","category"],
                                      download=True)
     
     testing_data = datasets.OxfordIIITPet(root="data", 
                                      split="test", 
-                                     transforms=base_transform,
-                                     target_types="segmentation",
+                                     transforms=all_base_transform,
+                                     target_types=["segmentation","category"],
                                      download=True)
     training_data = datasets.wrap_dataset_for_transforms_v2(training_data)
     testing_data = datasets.wrap_dataset_for_transforms_v2(testing_data)
@@ -54,9 +66,10 @@ def main():
     ], dtype="uint8")
     
     for _ in range(3):
-        X,y = next(train_iter)
+        X,(y,labels) = next(train_iter)
         X = X.numpy()
         y = y.numpy()
+        labels = labels.numpy()
         for i in range(batch_size):
             img = X[i]
             img = np.transpose(img, [1,2,0])
@@ -66,9 +79,11 @@ def main():
             seg = np.transpose(seg, [1,2,0])
             seg = np.squeeze(seg, axis=-1)
             seg = segLUT[seg]
+            
+            label_name = training_data.classes[labels[i]]
                  
-            image_name = "Img%02d" % i
-            seg_name = "Seg%02d" % i
+            image_name = "Img%02d_%s" % (i, label_name)
+            seg_name = "Seg%02d_%s" % (i, label_name)
             cv2.imshow(image_name, img)
             cv2.imshow(seg_name, seg)
             
