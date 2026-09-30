@@ -45,19 +45,19 @@ class CatDogDataset(Dataset):
 
 def main():
     data_transform = v2.Compose([
-        v2.ToImage(),
+        v2.Resize((256,256)),
+        # v2.ToImage(),
         v2.ToDtype(torch.float32, scale=True)
     ])
     
-    training_data = datasets.CIFAR10(root="data", 
+    data_root = os.path.join("data", "cats_dogs_light")
+    training_data = CatDogDataset(root=data_root, 
                                      train=True, 
-                                     transform=data_transform,
-                                     download=True)
+                                     transform=data_transform)
     
-    testing_data = datasets.CIFAR10(root="data", 
+    testing_data = CatDogDataset(root=data_root, 
                                     train=False, 
-                                    transform=data_transform,
-                                    download=True)
+                                    transform=data_transform)
     
     batch_size = 5
     train_ds = DataLoader(training_data, 
@@ -78,7 +78,7 @@ def main():
             img = X[i]
             img = np.transpose(img, [1,2,0])
             img = cv2.cvtColor(img, cv2.COLOR_RGB2BGR)
-            img = cv2.resize(img, dsize=(256,256))
+            #img = cv2.resize(img, dsize=(256,256))
                         
             label_index = y[i]
             label = training_data.classes[label_index]
