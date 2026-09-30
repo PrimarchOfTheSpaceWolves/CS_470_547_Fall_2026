@@ -20,6 +20,13 @@ def main():
     print(all_data)
     print(training_data.features)
     
+    def transform_func(data):
+        data["image"] = [data_transform(img) for img in data["image"]]
+        return data
+    
+    training_data = training_data.with_transform(transform_func)
+    testing_data = testing_data.with_transform(transform_func)
+    
     batch_size = 5
     train_ds = DataLoader(training_data, 
                           batch_size=batch_size,
