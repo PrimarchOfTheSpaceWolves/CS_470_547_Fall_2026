@@ -10,6 +10,14 @@ import pandas
 import sklearn
 import timm
 import torchvision
+from enum import Enum
+
+class FilterType(Enum):
+    BOX = "Box filter"
+    
+def do_filter(image, filter_size, filter_type):
+    output = np.copy(image)
+    return output
 
 ###############################################################################
 # MAIN
@@ -38,6 +46,12 @@ def main():
     print("Pandas:", pandas.__version__)
     print("Scikit-Learn:", sklearn.__version__)
         
+    print("FILTERING OPTIONS:")
+    for index, item in enumerate(list(FilterType)):
+        print(index, "-", item.value)
+    filter_type = list(FilterType)[int(input("Enter choice: "))] 
+    filter_size = 3
+            
     ###############################################################################
     # OPENCV
     ###############################################################################
@@ -64,12 +78,23 @@ def main():
         frame_index = int(capture.get(cv2.CAP_PROP_POS_FRAMES))
         if(frame_cnt != -1 and frame_index == frame_cnt):
             capture.set(cv2.CAP_PROP_POS_FRAMES, 0) 
+            
+        grayscale = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+        output = do_filter(grayscale, filter_size, filter_type)
         
         # Show the image
-        cv2.imshow("Video", frame)
+        cv2.imshow("Video", grayscale)
+        cv2.imshow("Filtered", output)
 
         # Wait 30 milliseconds, and grab any key presses
         key = cv2.waitKey(30)
+        
+        if key == ord('q'):
+            filter_size += 2
+            print("Size:", filter_size)
+        if key == ord('a'):
+            filter_size = max(3, filter_size-2)
+            print("Size:", filter_size)
 
     # Release the capture and destroy the window
     capture.release()
