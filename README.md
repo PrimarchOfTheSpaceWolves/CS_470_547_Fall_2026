@@ -23,4 +23,9 @@ A basic demo of intensity transformations.
 
 Uses NN to learn grayscale transform.
 
+### ProfExercise04_*
+
+Several exercises on data loading.
+
+
 
