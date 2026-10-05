@@ -1,0 +1,69 @@
+import torch
+from torch.utils.data import Dataset,DataLoader
+import torchvision
+from torchvision import datasets
+from torchvision.transforms import v2
+import cv2
+import numpy as np
+from datasets import load_dataset
+
+def main():
+    data_transform = v2.Compose([
+        v2.ToImage(),
+        v2.ToDtype(torch.float32, scale=True)
+    ])
+    
+    all_data = load_dataset("AI-Lab-Makerere/beans")
+    training_data = all_data["train"]
+    testing_data = all_data["test"]
+    
+    print(all_data)
+    print(training_data.features)
+    
+    def transform_func(data):
+        data["image"] = [data_transform(img) for img in data["image"]]
+        return data
+    
+    training_data = training_data.with_transform(transform_func)
+    testing_data = testing_data.with_transform(transform_func)
+    
+    batch_size = 5
+    train_ds = DataLoader(training_data, 
+                          batch_size=batch_size,
+                          shuffle=True)
+    
+    test_ds = DataLoader(testing_data, 
+                            batch_size=batch_size,
+                            shuffle=False)
+    
+    train_iter = iter(train_ds)
+    
+    label_feature = training_data.features["labels"]
+    
+    for _ in range(3):
+        batch = next(train_iter)
+        X = batch["image"]
+        y = batch["labels"]
+        X = X.numpy()
+        y = y.numpy()
+        for i in range(batch_size):
+            img = X[i]
+            img = np.transpose(img, [1,2,0])
+            img = cv2.cvtColor(img, cv2.COLOR_RGB2BGR)
+            img = cv2.resize(img, dsize=(256,256))
+                        
+            label_index = y[i]
+            label = label_feature.int2str(int(label_index))
+            window_name = "Img%02d_%s" % (i, label)
+            cv2.imshow(window_name, img)
+        cv2.waitKey(-1)
+        cv2.destroyAllWindows()
+            
+        
+        
+    
+    
+
+if __name__ == "__main__":
+    main()
+    
