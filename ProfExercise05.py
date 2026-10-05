@@ -16,7 +16,9 @@ class FilterType(Enum):
     BOX = "Box filter"
     
 def do_filter(image, filter_size, filter_type):
-    output = np.copy(image)
+    if filter_type == FilterType.BOX:
+        output = cv2.blur(image, (filter_size, filter_size))    
+    
     return output
 
 ###############################################################################
