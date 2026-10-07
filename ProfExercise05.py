@@ -16,6 +16,7 @@ class FilterType(Enum):
     BOX = "Box filter"
     GAUSS = "Gaussian filter"
     MEDIAN = "Median filter"
+    LAPLACE = "Laplacian filter"
     
 def do_filter(image, filter_size, filter_type):
     if filter_type == FilterType.BOX:
@@ -26,6 +27,13 @@ def do_filter(image, filter_size, filter_type):
                                   sigmaX=0)
     elif filter_type == FilterType.MEDIAN:
         output = cv2.medianBlur(image, filter_size)
+    elif filter_type == FilterType.LAPLACE:
+        output = cv2.Laplacian(image, cv2.CV_64F, 
+                               ksize=filter_size,
+                               scale=0.25)
+        output = cv2.convertScaleAbs(output, 
+                                     alpha=0.5, 
+                                     beta=127)
        
     return output
 
