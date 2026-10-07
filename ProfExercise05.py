@@ -15,6 +15,7 @@ from enum import Enum
 class FilterType(Enum):
     BOX = "Box filter"
     GAUSS = "Gaussian filter"
+    MEDIAN = "Median filter"
     
 def do_filter(image, filter_size, filter_type):
     if filter_type == FilterType.BOX:
@@ -23,6 +24,8 @@ def do_filter(image, filter_size, filter_type):
         output = cv2.GaussianBlur(image, 
                                   ksize=(filter_size,filter_size),
                                   sigmaX=0)
+    elif filter_type == FilterType.MEDIAN:
+        output = cv2.medianBlur(image, filter_size)
     
     return output
 
