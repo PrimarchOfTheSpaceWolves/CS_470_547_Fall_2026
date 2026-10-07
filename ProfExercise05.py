@@ -14,10 +14,15 @@ from enum import Enum
 
 class FilterType(Enum):
     BOX = "Box filter"
+    GAUSS = "Gaussian filter"
     
 def do_filter(image, filter_size, filter_type):
     if filter_type == FilterType.BOX:
         output = cv2.blur(image, (filter_size, filter_size))    
+    elif filter_type == FilterType.GAUSS:
+        output = cv2.GaussianBlur(image, 
+                                  ksize=(filter_size,filter_size),
+                                  sigmaX=0)
     
     return output
 
