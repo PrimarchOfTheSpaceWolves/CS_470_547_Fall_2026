@@ -26,9 +26,30 @@ def do_filter(image, filter_size, filter_type):
                                   sigmaX=0)
     elif filter_type == FilterType.MEDIAN:
         output = cv2.medianBlur(image, filter_size)
-    
+       
     return output
 
+def do_add_salt_pepper_noise(image, prob):
+    # Salt
+    choice = np.random.rand(image.shape[0], image.shape[1])    
+    output = np.where(choice < prob, 255, image)    
+    # Pepper
+    choice = np.random.rand(image.shape[0], image.shape[1])    
+    output = np.where(choice < prob, 0, output)  
+    return output 
+
+def do_add_noise(image, scale):
+    fimage = image.astype("float32")
+    
+    choice = np.random.rand(image.shape[0], image.shape[1])
+    choice = 2.0*choice - 1.0
+    choice = scale*choice    
+    fimage = fimage + choice  
+    
+    output = np.clip(np.round(fimage), 0, 255).astype("uint8") 
+     
+    return output 
+    
 ###############################################################################
 # MAIN
 ###############################################################################
@@ -75,6 +96,9 @@ def main():
     if not capture.isOpened():
         print("ERROR: Cannot open the video: %s" % video_file)
         exit(1)
+        
+    add_salt_pepper_noise = False
+    noise_scale = 0.0
 
     # While not the escape key...
     ESC_KEY = 27
@@ -90,6 +114,12 @@ def main():
             capture.set(cv2.CAP_PROP_POS_FRAMES, 0) 
             
         grayscale = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+        
+        grayscale = do_add_noise(grayscale, noise_scale)
+        
+        if add_salt_pepper_noise:
+            grayscale = do_add_salt_pepper_noise(grayscale, 0.01)
+               
         output = do_filter(grayscale, filter_size, filter_type)
         
         # Show the image
@@ -105,7 +135,15 @@ def main():
         if key == ord('a'):
             filter_size = max(3, filter_size-2)
             print("Size:", filter_size)
-
+            
+        if key == ord('z'):
+            add_salt_pepper_noise = not add_salt_pepper_noise
+            
+        if key == ord('w'):
+            noise_scale += 1.0
+        if key == ord('s'):
+            noise_scale = max(0.0, noise_scale - 1.0)
+            
     # Release the capture and destroy the window
     capture.release()
     cv2.destroyAllWindows()
