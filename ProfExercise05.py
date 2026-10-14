@@ -18,6 +18,9 @@ class FilterType(Enum):
     MEDIAN = "Median filter"
     LAPLACE = "Laplacian filter"
     SHARP_LAPLACE = "Laplacian Sharpening"
+    SOBEL_X = "Sobel X"
+    SOBEL_Y = "Sobel Y"
+    GRAD_MAG = "Gradient Magnitude"
     
 def do_filter(image, filter_size, filter_type):
     if filter_type == FilterType.BOX:
@@ -42,7 +45,23 @@ def do_filter(image, filter_size, filter_type):
         fimage = image.astype("float64")
         fimage = fimage - laplace
         output = cv2.convertScaleAbs(fimage)
-        
+    elif filter_type == FilterType.SOBEL_X:
+        sx = cv2.Sobel(image, cv2.CV_64F, 
+                       dx=1, dy=0, 
+                       ksize=filter_size,
+                       scale=0.25)
+        output = cv2.convertScaleAbs(sx, alpha=0.5, beta=127)
+    elif filter_type == FilterType.SOBEL_Y:
+        sy = cv2.Sobel(image, cv2.CV_64F, 
+                        dx=0, dy=1, 
+                        ksize=filter_size,
+                        scale=0.25)
+        output = cv2.convertScaleAbs(sy, alpha=0.5, beta=127)
+    elif filter_type == FilterType.GRAD_MAG:
+        sx = cv2.Sobel(image, cv2.CV_64F, dx=1, dy=0, ksize=filter_size, scale=0.25)
+        sy = cv2.Sobel(image, cv2.CV_64F, dx=0, dy=1, ksize=filter_size, scale=0.25)
+        grad_image = np.absolute(sx) + np.absolute(sy)
+        output = cv2.convertScaleAbs(grad_image)
        
     return output
 
