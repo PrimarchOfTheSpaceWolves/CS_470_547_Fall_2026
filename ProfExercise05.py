@@ -17,6 +17,7 @@ class FilterType(Enum):
     GAUSS = "Gaussian filter"
     MEDIAN = "Median filter"
     LAPLACE = "Laplacian filter"
+    SHARP_LAPLACE = "Laplacian Sharpening"
     
 def do_filter(image, filter_size, filter_type):
     if filter_type == FilterType.BOX:
@@ -34,6 +35,14 @@ def do_filter(image, filter_size, filter_type):
         output = cv2.convertScaleAbs(output, 
                                      alpha=0.5, 
                                      beta=127)
+    elif filter_type == FilterType.SHARP_LAPLACE:
+        laplace = cv2.Laplacian(image, cv2.CV_64F, 
+                                    ksize=filter_size,
+                                    scale=0.25)
+        fimage = image.astype("float64")
+        fimage = fimage - laplace
+        output = cv2.convertScaleAbs(fimage)
+        
        
     return output
 
