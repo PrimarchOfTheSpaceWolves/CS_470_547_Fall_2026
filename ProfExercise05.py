@@ -21,8 +21,9 @@ class FilterType(Enum):
     SOBEL_X = "Sobel X"
     SOBEL_Y = "Sobel Y"
     GRAD_MAG = "Gradient Magnitude"
+    CUSTOM = "Custom Filter"
     
-def do_filter(image, filter_size, filter_type):
+def do_filter(image, filter_size, filter_type, custom_filter=None):
     if filter_type == FilterType.BOX:
         output = cv2.blur(image, (filter_size, filter_size))    
     elif filter_type == FilterType.GAUSS:
@@ -62,6 +63,14 @@ def do_filter(image, filter_size, filter_type):
         sy = cv2.Sobel(image, cv2.CV_64F, dx=0, dy=1, ksize=filter_size, scale=0.25)
         grad_image = np.absolute(sx) + np.absolute(sy)
         output = cv2.convertScaleAbs(grad_image)
+    elif filter_type == FilterType.CUSTOM:
+        if custom_filter is None:
+            raise ValueError("Custom filter cannot be None!")
+        display_scale = np.sum(np.absolute(custom_filter))
+        filter_result = cv2.filter2D(image, cv2.CV_64F, custom_filter)
+        output = cv2.convertScaleAbs(filter_result, 
+                                     alpha=1.0/display_scale,
+                                     beta=127.0)
        
     return output
 
@@ -118,7 +127,17 @@ def main():
         print(index, "-", item.value)
     filter_type = list(FilterType)[int(input("Enter choice: "))] 
     filter_size = 3
+    
+    def recreate_custom(fsize):
+        filter = np.zeros((fsize, fsize), dtype="float64")
+        scale = (2.0*np.pi*5.0)/fsize
+        x_coords = np.arange(fsize).astype("float64")
+        sin_vals = np.sin(x_coords*scale)
+        filter[:] = sin_vals
+        return filter
             
+    custom_filter = recreate_custom(filter_size)
+    
     ###############################################################################
     # OPENCV
     ###############################################################################
@@ -156,7 +175,8 @@ def main():
         if add_salt_pepper_noise:
             grayscale = do_add_salt_pepper_noise(grayscale, 0.01)
                
-        output = do_filter(grayscale, filter_size, filter_type)
+        output = do_filter(grayscale, filter_size, filter_type, 
+                           custom_filter)
         
         # Show the image
         cv2.imshow("Video", grayscale)
@@ -168,9 +188,12 @@ def main():
         if key == ord('q'):
             filter_size += 2
             print("Size:", filter_size)
+            custom_filter = recreate_custom(filter_size)
+            
         if key == ord('a'):
             filter_size = max(3, filter_size-2)
             print("Size:", filter_size)
+            custom_filter = recreate_custom(filter_size)
             
         if key == ord('z'):
             add_salt_pepper_noise = not add_salt_pepper_noise
