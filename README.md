@@ -27,5 +27,9 @@ Uses NN to learn grayscale transform.
 
 Several exercises on data loading.
 
+### ProfExercise05_*
+
+Several exercises on correlation/convolution (professor edition).
+
 
 
