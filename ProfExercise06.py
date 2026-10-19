@@ -10,12 +10,31 @@ import pandas
 import sklearn
 import timm
 import torchvision
+import ProfFreqHelper as fh
 
 ###############################################################################
 # MAIN
 ###############################################################################
 
-def main():        
+def main():    
+    complex_data = fh.make_simple_complex()
+    mag, phase = fh.complex_to_polar(complex_data)
+    complex_image = fh.to_complex_image(complex_data)
+    
+    cv2.normalize(complex_image, complex_image, 
+                    norm_type=cv2.NORM_MINMAX)
+    cv2.normalize(mag, mag, 
+                    norm_type=cv2.NORM_MINMAX)
+    cv2.normalize(phase, phase, 
+                    norm_type=cv2.NORM_MINMAX)
+    
+    cv2.imshow("Original X", complex_image[...,0])
+    cv2.imshow("Original Y", complex_image[...,1])
+    cv2.imshow("Magnitude", mag)
+    cv2.imshow("Phase", phase)
+    cv2.waitKey(-1)
+    cv2.destroyAllWindows()
+        
     ###############################################################################
     # PYTORCH
     ###############################################################################
