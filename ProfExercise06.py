@@ -16,7 +16,8 @@ import ProfFreqHelper as fh
 # MAIN
 ###############################################################################
 
-def main():    
+def main(): 
+    '''   
     complex_data = fh.make_simple_complex()
     mag, phase = fh.complex_to_polar(complex_data)
     complex_image = fh.to_complex_image(complex_data)
@@ -34,6 +35,20 @@ def main():
     cv2.imshow("Phase", phase)
     cv2.waitKey(-1)
     cv2.destroyAllWindows()
+    '''
+    
+    simple1D = np.array([[1,2,4,4]])
+    simple_fourier = fh.compute_fourier(simple1D)
+    simple_complex = fh.to_numpy_complex(simple_fourier)
+    print("Original:", simple1D)
+    print("Fourier:", simple_complex)
+    
+    simple_mag, simple_phase = fh.complex_to_polar(simple_complex)
+    print("Magnitude:", simple_mag)
+    print("Phase:", simple_phase)
+    
+    simple_recon = fh.compute_inverse_fourier(simple_fourier)
+    print("Recon:", simple_recon)
         
     ###############################################################################
     # PYTORCH
