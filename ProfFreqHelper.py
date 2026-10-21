@@ -25,3 +25,14 @@ def make_simple_complex(length=600):
     complex_data += np.reshape(1j*values, (-1,1))
     
     return complex_data
+
+def compute_fourier(image):
+    fimage = image.astype("float64")
+    output = cv2.dft(fimage, 
+                     flags=cv2.DFT_COMPLEX_OUTPUT)
+    return output
+
+def compute_inverse_fourier(freq):
+    return cv2.idft(freq, 
+                    flags=(cv2.DFT_REAL_OUTPUT
+                           +cv2.DFT_SCALE))
