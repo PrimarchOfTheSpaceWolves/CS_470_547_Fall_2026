@@ -31,5 +31,11 @@ Several exercises on data loading.
 
 Several exercises on correlation/convolution (professor edition).
 
+### ProfExercise06
 
+Basic Fourier experiments (professor edition).
+
+### ProfFreqHelper
+
+Utility functions for Fourier transforms and complex numbers (professor edition).
 
