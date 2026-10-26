@@ -12,6 +12,23 @@ import timm
 import torchvision
 import ProfFreqHelper as fh
 
+mouse_down = False
+
+def on_mouse(event, x, y, flags, param):
+    global mouse_down
+    
+    if event == cv2.EVENT_LBUTTONUP:
+        mouse_down = False
+        return
+    elif (event == cv2.EVENT_LBUTTONDOWN or
+          (event == cv2.EVENT_MOUSEMOVE and mouse_down)):
+        mouse_down = True
+        mask_image = param[0]
+        circle_radius = param[1]
+        fill_value = 0.0
+        cv2.circle(mask_image, (x,y), circle_radius, fill_value, -1)
+        
+
 def do_frequency(image, mask_image):
     pad_image = fh.pad_for_fourier(image)
     fourier_image = fh.compute_fourier(pad_image)
@@ -23,14 +40,24 @@ def do_frequency(image, mask_image):
     
     #print("Mag range:", np.amin(mag), np.amax(mag))
     
-    log_mag = cv2.log(mag + 1.0)
+    mag_title = "Magnitude"
+    cv2.namedWindow(mag_title)
+    mask_pack = [mask_image, 50]
+    cv2.setMouseCallback(mag_title, on_mouse, param=mask_pack)
     
+    pad_mask = fh.pad_for_fourier(mask_image, pad_value=1.0)    
+    mag *= pad_mask
+    
+    log_mag = cv2.log(mag + 1.0)
+        
     display_mag = cv2.normalize(log_mag, dst=None, alpha=0, beta=1, 
                                 norm_type=cv2.NORM_MINMAX)
     display_phase = cv2.normalize(phase, dst=None, alpha=0, beta=1,
                                   norm_type=cv2.NORM_MINMAX)
     
-    cv2.imshow("Magnitude", display_mag)
+    
+    
+    cv2.imshow(mag_title, display_mag)
     cv2.imshow("Phase", display_phase)   
     
     complex_data = fh.polar_to_complex(mag, phase)

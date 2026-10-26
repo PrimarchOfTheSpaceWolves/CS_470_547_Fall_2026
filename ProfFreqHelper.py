@@ -40,7 +40,7 @@ def compute_inverse_fourier(freq):
                     flags=(cv2.DFT_REAL_OUTPUT
                            +cv2.DFT_SCALE))
     
-def pad_for_fourier(image):
+def pad_for_fourier(image, pad_value=0):
     m = cv2.getOptimalDFTSize(image.shape[0])
     n = cv2.getOptimalDFTSize(image.shape[1])
     pad_image = cv2.copyMakeBorder(
@@ -48,7 +48,7 @@ def pad_for_fourier(image):
                     0, m - image.shape[0],
                     0, n - image.shape[1],
                     cv2.BORDER_CONSTANT,
-                    value=0)
+                    value=pad_value)
     return pad_image
 
 def shift_complex(complex_data):
