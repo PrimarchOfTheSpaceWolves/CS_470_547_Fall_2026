@@ -13,7 +13,27 @@ import torchvision
 import ProfFreqHelper as fh
 
 def do_frequency(image, mask_image):
-    output = np.copy(image)
+    pad_image = fh.pad_for_fourier(image)
+    fourier_image = fh.compute_fourier(pad_image)
+    
+    complex_data = fh.to_numpy_complex(fourier_image)
+    mag, phase = fh.complex_to_polar(complex_data)
+    
+    #print("Mag range:", np.amin(mag), np.amax(mag))
+    
+    log_mag = cv2.log(mag + 1.0)
+    
+    display_mag = cv2.normalize(log_mag, dst=None, alpha=0, beta=1, 
+                                norm_type=cv2.NORM_MINMAX)
+    display_phase = cv2.normalize(phase, dst=None, alpha=0, beta=1,
+                                  norm_type=cv2.NORM_MINMAX)
+    
+    cv2.imshow("Magnitude", display_mag)
+    cv2.imshow("Phase", display_phase)    
+    
+    output = fh.compute_inverse_fourier(fourier_image)
+    output = cv2.convertScaleAbs(output)
+        
     return output
 
 ###############################################################################
