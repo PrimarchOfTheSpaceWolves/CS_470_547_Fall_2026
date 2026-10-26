@@ -14,6 +14,9 @@ def complex_to_polar(complex_data):
     mag = np.abs(complex_data)
     phase = np.angle(complex_data)
     return mag, phase
+
+def polar_to_complex(mag, phase):
+    return mag * np.exp(1j * phase)
     
 def make_simple_complex(length=600):
     hl = length/2
