@@ -39,3 +39,14 @@ def compute_inverse_fourier(freq):
     return cv2.idft(freq, 
                     flags=(cv2.DFT_REAL_OUTPUT
                            +cv2.DFT_SCALE))
+    
+def pad_for_fourier(image):
+    m = cv2.getOptimalDFTSize(image.shape[0])
+    n = cv2.getOptimalDFTSize(image.shape[1])
+    pad_image = cv2.copyMakeBorder(
+                    image,
+                    0, m - image.shape[0],
+                    0, n - image.shape[1],
+                    cv2.BORDER_CONSTANT,
+                    value=0)
+    return pad_image
