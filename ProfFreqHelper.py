@@ -50,3 +50,9 @@ def pad_for_fourier(image):
                     cv2.BORDER_CONSTANT,
                     value=0)
     return pad_image
+
+def shift_complex(complex_data):
+    return np.fft.fftshift(complex_data)
+
+def unshift_complex(complex_data):
+    return np.fft.ifftshift(complex_data)

@@ -17,6 +17,8 @@ def do_frequency(image, mask_image):
     fourier_image = fh.compute_fourier(pad_image)
     
     complex_data = fh.to_numpy_complex(fourier_image)
+    complex_data = fh.shift_complex(complex_data)
+    
     mag, phase = fh.complex_to_polar(complex_data)
     
     #print("Mag range:", np.amin(mag), np.amax(mag))
@@ -29,7 +31,11 @@ def do_frequency(image, mask_image):
                                   norm_type=cv2.NORM_MINMAX)
     
     cv2.imshow("Magnitude", display_mag)
-    cv2.imshow("Phase", display_phase)    
+    cv2.imshow("Phase", display_phase)   
+    
+    complex_data = fh.polar_to_complex(mag, phase)
+    complex_data = fh.unshift_complex(complex_data)
+    fourier_image = fh.to_complex_image(complex_data) 
     
     output = fh.compute_inverse_fourier(fourier_image)
     output = cv2.convertScaleAbs(output)
