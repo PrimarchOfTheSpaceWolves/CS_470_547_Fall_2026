@@ -14,6 +14,9 @@ def complex_to_polar(complex_data):
     mag = np.abs(complex_data)
     phase = np.angle(complex_data)
     return mag, phase
+
+def polar_to_complex(mag, phase):
+    return mag * np.exp(1j * phase)
     
 def make_simple_complex(length=600):
     hl = length/2
@@ -36,3 +39,20 @@ def compute_inverse_fourier(freq):
     return cv2.idft(freq, 
                     flags=(cv2.DFT_REAL_OUTPUT
                            +cv2.DFT_SCALE))
+    
+def pad_for_fourier(image, pad_value=0):
+    m = cv2.getOptimalDFTSize(image.shape[0])
+    n = cv2.getOptimalDFTSize(image.shape[1])
+    pad_image = cv2.copyMakeBorder(
+                    image,
+                    0, m - image.shape[0],
+                    0, n - image.shape[1],
+                    cv2.BORDER_CONSTANT,
+                    value=pad_value)
+    return pad_image
+
+def shift_complex(complex_data):
+    return np.fft.fftshift(complex_data)
+
+def unshift_complex(complex_data):
+    return np.fft.ifftshift(complex_data)
