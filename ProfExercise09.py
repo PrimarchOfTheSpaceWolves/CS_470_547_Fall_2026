@@ -51,6 +51,10 @@ def main():
     if not capture.isOpened():
         print("ERROR: Cannot open the video: %s" % video_file)
         exit(1)
+        
+    # Set initial thresholds
+    lowT = 100
+    highT = 200
 
     # While not the escape key...
     ESC_KEY = 27
@@ -64,12 +68,22 @@ def main():
         frame_index = int(capture.get(cv2.CAP_PROP_POS_FRAMES))
         if(frame_cnt != -1 and frame_index == frame_cnt):
             capture.set(cv2.CAP_PROP_POS_FRAMES, 0) 
+            
+        grayscale = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+        edges = cv2.Canny(grayscale, lowT, highT)
         
         # Show the image
-        cv2.imshow("Video", frame)
+        cv2.imshow("Video", grayscale)
+        cv2.imshow("Edges", edges)
 
         # Wait 30 milliseconds, and grab any key presses
         key = cv2.waitKey(30)
+        
+        if key == ord('q'): lowT += 10
+        if key == ord('a'): lowT -= 10
+        if key == ord('w'): highT += 10
+        if key == ord('s'): highT -= 10
+        print("Thresh:", lowT, highT)
 
     # Release the capture and destroy the window
     capture.release()
