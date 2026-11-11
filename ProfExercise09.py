@@ -10,6 +10,7 @@ import pandas
 import sklearn
 import timm
 import torchvision
+import math as m
 
 ###############################################################################
 # MAIN
@@ -72,9 +73,24 @@ def main():
         grayscale = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
         edges = cv2.Canny(grayscale, lowT, highT)
         
+        lineImage = cv2.cvtColor(grayscale, cv2.COLOR_GRAY2BGR)
+        lineSegments = cv2.HoughLinesP(
+            edges, 1.0, m.pi/180.0, 50, 
+            minLineLength=10.0, 
+            maxLineGap=10.0
+        )
+        
+        #print(lineSegments.shape)
+        for line in lineSegments:
+            cv2.line(lineImage, 
+                     (line[0], line[1]),
+                     (line[2], line[3]),
+                     (0,0,255), 3)
+        
         # Show the image
         cv2.imshow("Video", grayscale)
         cv2.imshow("Edges", edges)
+        cv2.imshow("Lines", lineImage)
 
         # Wait 30 milliseconds, and grab any key presses
         key = cv2.waitKey(30)
