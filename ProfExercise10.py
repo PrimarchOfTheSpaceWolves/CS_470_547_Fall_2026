@@ -14,11 +14,28 @@ from enum import Enum
 
 class ThresholdType(Enum):
     BINARY = "Binary Threshold"
+    ESTIMATED = "Estimated Threshold"
     
 def threshold(image, thresh_type, user_value=128):
     if thresh_type == ThresholdType.BINARY:
         _, output = cv2.threshold(image, user_value, 255, cv2.THRESH_BINARY)
-    
+    elif thresh_type == ThresholdType.ESTIMATED:
+        T = cv2.mean(image)[0]
+        Tdiff = 1000
+        MIN_DIFF = 1
+        while Tdiff > MIN_DIFF:
+            _, output = cv2.threshold(image, T, 255, cv2.THRESH_BINARY)
+            fore_mask = output
+            back_mask = 255 - output
+            Tf = cv2.mean(image, fore_mask)[0]
+            Tb = cv2.mean(image, back_mask)[0]
+            Told = T
+            T = (Tf + Tb)/2
+            Tdiff = abs(T - Told)
+           
+        _, output = cv2.threshold(image, T, 255, cv2.THRESH_BINARY)  
+        print("Threshold:", T)               
+                
     return output
 
 ###############################################################################
