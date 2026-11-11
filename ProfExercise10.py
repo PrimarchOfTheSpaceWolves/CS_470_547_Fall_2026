@@ -10,12 +10,29 @@ import pandas
 import sklearn
 import timm
 import torchvision
+from enum import Enum
+
+class ThresholdType(Enum):
+    BINARY = "Binary Threshold"
+    
+def threshold(image, thresh_type, user_value=128):
+    if thresh_type == ThresholdType.BINARY:
+        _, output = cv2.threshold(image, user_value, 255, cv2.THRESH_BINARY)
+    
+    return output
 
 ###############################################################################
 # MAIN
 ###############################################################################
 
-def main():        
+def main():    
+    
+    chosenT = 0
+    print("THRESHOLD APPROACH:")
+    for index, item in enumerate(list(ThresholdType)):
+        print(index, "-", item.value)
+    chosenT = list(ThresholdType)[int(input("Enter choice: "))] 
+            
     ###############################################################################
     # PYTORCH
     ###############################################################################
@@ -52,6 +69,8 @@ def main():
         print("ERROR: Cannot open the video: %s" % video_file)
         exit(1)
 
+    user_thresh = 128
+    
     # While not the escape key...
     ESC_KEY = 27
     key = -1
@@ -64,12 +83,20 @@ def main():
         frame_index = int(capture.get(cv2.CAP_PROP_POS_FRAMES))
         if(frame_cnt != -1 and frame_index == frame_cnt):
             capture.set(cv2.CAP_PROP_POS_FRAMES, 0) 
+            
+        grayscale = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+        output = threshold(grayscale, chosenT, user_thresh)
         
         # Show the image
-        cv2.imshow("Video", frame)
+        cv2.imshow("Video", grayscale)
+        cv2.imshow("Threshold", output)
 
         # Wait 30 milliseconds, and grab any key presses
         key = cv2.waitKey(30)
+        
+        if key == ord("q"): user_thresh += 4
+        if key == ord("a"): user_thresh -= 4
+        user_thresh = max(user_thresh, 3)
 
     # Release the capture and destroy the window
     capture.release()
