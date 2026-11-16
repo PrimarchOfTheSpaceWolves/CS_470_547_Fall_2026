@@ -16,6 +16,7 @@ class ThresholdType(Enum):
     BINARY = "Binary Threshold"
     ESTIMATED = "Estimated Threshold"
     OTSU = "Otsu's Method"
+    ADAPTIVE = "Adaptive Mean Threshold"
     
 def threshold(image, thresh_type, user_value=128):
     if thresh_type == ThresholdType.BINARY:
@@ -39,7 +40,15 @@ def threshold(image, thresh_type, user_value=128):
     elif thresh_type == ThresholdType.OTSU:
         chosen, output = cv2.threshold(image, user_value, 255, 
                                        cv2.THRESH_OTSU)     
-        print("Threshold:", chosen)           
+        print("Threshold:", chosen)    
+    elif thresh_type == ThresholdType.ADAPTIVE:
+        output = cv2.adaptiveThreshold(
+            image, 
+            255, 
+            cv2.ADAPTIVE_THRESH_MEAN_C, 
+            cv2.THRESH_BINARY,
+            blockSize=user_value,
+            C=0)       
                 
     return output
 
@@ -91,7 +100,7 @@ def main():
         print("ERROR: Cannot open the video: %s" % video_file)
         exit(1)
 
-    user_thresh = 128
+    user_thresh = 7 #128
     
     # While not the escape key...
     ESC_KEY = 27
