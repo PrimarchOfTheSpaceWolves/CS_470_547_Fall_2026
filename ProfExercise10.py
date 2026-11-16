@@ -52,6 +52,14 @@ def threshold(image, thresh_type, user_value=128):
                 
     return output
 
+def colorDistance(image, target):
+    image = image.astype("float64")
+    image = image - target
+    image = np.square(image)
+    image = np.sum(image, axis=-1)
+    image = np.sqrt(image)
+    return image
+
 ###############################################################################
 # MAIN
 ###############################################################################
@@ -118,9 +126,14 @@ def main():
         grayscale = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
         output = threshold(grayscale, chosenT, user_thresh)
         
+        dist = colorDistance(frame, (0,0,255))
+        print(np.amin(dist), np.amax(dist))
+        dist = (dist < 200).astype("float64")
+        
         # Show the image
-        cv2.imshow("Video", grayscale)
+        cv2.imshow("Video", frame)
         cv2.imshow("Threshold", output)
+        cv2.imshow("Distance", dist)
 
         # Wait 30 milliseconds, and grab any key presses
         key = cv2.waitKey(30)
