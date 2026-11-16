@@ -35,6 +35,10 @@ Several exercises on correlation/convolution (professor edition).
 
 Basic Fourier experiments (professor edition).
 
+### ProfExercise09
+
+Examples of edge detection and Hough transform (professor edition).
+
 ### ProfFreqHelper
 
 Utility functions for Fourier transforms and complex numbers (professor edition).
