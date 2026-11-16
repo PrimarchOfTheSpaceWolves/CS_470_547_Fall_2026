@@ -11,6 +11,7 @@ import sklearn
 import timm
 import torchvision
 from enum import Enum
+from skimage.segmentation import slic, mark_boundaries
 
 class ThresholdType(Enum):
     BINARY = "Binary Threshold"
@@ -18,6 +19,7 @@ class ThresholdType(Enum):
     OTSU = "Otsu's Method"
     ADAPTIVE = "Adaptive Mean Threshold"
     KMEANS = "K-Means Color Clustering"
+    SLIC = "Superpixel SLIC Algorithm"
     
 def threshold(image, thresh_type, user_value=128):
     grayscale = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
@@ -64,7 +66,13 @@ def threshold(image, thresh_type, user_value=128):
         centers = np.uint8(centers)
         results = centers[labels.flatten()]
         output = np.reshape(results, image.shape)
-                    
+        
+    elif thresh_type == ThresholdType.SLIC:
+        segments = slic(image, n_segments=100, sigma=5,
+                        compactness=10,
+                        start_label=0)
+        output = mark_boundaries(image, segments)
+                           
                 
     return output
 
