@@ -123,7 +123,8 @@ def main():
     for index, item in enumerate(list(MorphType)):
         print(index, "-", item.value)
     chosenM = list(MorphType)[int(input("Enter choice: "))] 
-    morphIter = 0
+    morphIter = 1
+    morphSize = 3
             
     ###############################################################################
     # PYTORCH
@@ -180,11 +181,13 @@ def main():
         output = threshold(frame, chosenT, user_thresh)
         
         dist = colorDistance(frame, (0,0,255))
-        print(np.amin(dist), np.amax(dist))
+        # print(np.amin(dist), np.amax(dist))
         dist = (dist < 200).astype("float64")
         
         if morphIter > 0:
-            morphed = morph(output, chosenM, iterations=morphIter)
+            morphed = morph(output, chosenM, 
+                            ssize=(morphSize,morphSize),
+                            iterations=morphIter)
         else:
             morphed = np.copy(output)           
                 
@@ -208,6 +211,11 @@ def main():
             morphIter -= 1
             morphIter = max(0, morphIter)
             print("Morph:", morphIter)
+            
+        if key == ord("e"): morphSize += 2
+        if key == ord("d"): morphSize -= 2
+        morphSize = max(morphSize, 3)
+        print("Morph Size:", morphSize)
 
     # Release the capture and destroy the window
     capture.release()
