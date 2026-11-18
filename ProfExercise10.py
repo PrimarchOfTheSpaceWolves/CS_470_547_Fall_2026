@@ -24,6 +24,8 @@ class ThresholdType(Enum):
 class MorphType(Enum):
     ERODE = "Erosion"
     DILATE = "Dilation"
+    OPEN = "Opening"
+    CLOSE = "Closing"
     
 def morph(threshImage, morphType, ssize=(3,3), iterations=1):
     element = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, ssize)
@@ -32,6 +34,12 @@ def morph(threshImage, morphType, ssize=(3,3), iterations=1):
         output = cv2.erode(threshImage, element, iterations=iterations)
     elif morphType == MorphType.DILATE:
         output = cv2.dilate(threshImage, element, iterations=iterations)
+    elif morphType == MorphType.OPEN:
+        output = cv2.morphologyEx(threshImage, cv2.MORPH_OPEN, element,
+                                  iterations=iterations)
+    elif morphType == MorphType.CLOSE:
+        output = cv2.morphologyEx(threshImage, cv2.MORPH_CLOSE, element,
+                                    iterations=iterations)
     
     return output    
     
