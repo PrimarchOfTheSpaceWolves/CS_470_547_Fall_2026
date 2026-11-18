@@ -106,6 +106,47 @@ def colorDistance(image, target):
     image = np.sqrt(image)
     return image
 
+def colorRegions(threshImage):
+    
+    colors = [
+        (255,0,0),
+        (0,255,0),
+        (0,0,255),
+        (255,0,255),
+        (255,255,0),
+        (0,255,255),
+        (255,255,255)
+    ]
+    
+    numConnect, labelImage = cv2.connectedComponents(
+        threshImage, connectivity=8, ltype=cv2.CV_32S
+    )
+    
+    print("Number of regions:", numConnect)
+    
+    colors = np.array(colors, dtype="uint8")
+    indexImage = np.copy(labelImage)
+    indexImage = indexImage % len(colors)   
+    colorImage = colors[indexImage]
+    mask_image = np.where(threshImage > 0, 1, 0)
+    colorImage = colorImage * np.expand_dims(mask_image, axis=-1)    
+    output = colorImage.astype("uint8")
+    
+    '''   
+    output = np.zeros(labelImage.shape + (3,), dtype="uint8")
+    for r in range(labelImage.shape[0]):
+        for c in range(labelImage.shape[1]):
+            label = labelImage[r,c]
+            labelColor = (0,0,0)
+            if label > 0:
+                label -= 1
+                label %= len(colors)
+                labelColor = colors[label]
+            output[r,c] = labelColor
+    '''
+    
+    return output           
+
 ###############################################################################
 # MAIN
 ###############################################################################
@@ -164,6 +205,7 @@ def main():
 
     user_thresh = 7 #128
     
+    
     # While not the escape key...
     ESC_KEY = 27
     key = -1
@@ -189,13 +231,16 @@ def main():
                             ssize=(morphSize,morphSize),
                             iterations=morphIter)
         else:
-            morphed = np.copy(output)           
+            morphed = np.copy(output)   
+            
+        regionColors = colorRegions(morphed)        
                 
         # Show the image
         cv2.imshow("Video", frame)
         cv2.imshow("Threshold", output)
         # cv2.imshow("Distance", dist)
         cv2.imshow("Morphed", morphed)
+        cv2.imshow("Colors", regionColors)
 
         # Wait 30 milliseconds, and grab any key presses
         key = cv2.waitKey(30)
