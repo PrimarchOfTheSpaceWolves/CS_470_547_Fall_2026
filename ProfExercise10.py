@@ -21,6 +21,20 @@ class ThresholdType(Enum):
     KMEANS = "K-Means Color Clustering"
     SLIC = "Superpixel SLIC Algorithm"
     
+class MorphType(Enum):
+    ERODE = "Erosion"
+    DILATE = "Dilation"
+    
+def morph(threshImage, morphType, ssize=(3,3), iterations=1):
+    element = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, ssize)
+    
+    if morphType == MorphType.ERODE:
+        output = cv2.erode(threshImage, element, iterations=iterations)
+    elif morphType == MorphType.DILATE:
+        output = cv2.dilate(threshImage, element, iterations=iterations)
+        
+    return output    
+    
 def threshold(image, thresh_type, user_value=128):
     grayscale = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
     
@@ -95,6 +109,13 @@ def main():
     for index, item in enumerate(list(ThresholdType)):
         print(index, "-", item.value)
     chosenT = list(ThresholdType)[int(input("Enter choice: "))] 
+    
+    chosenM = 0
+    print("MORPH APPROACH:")
+    for index, item in enumerate(list(MorphType)):
+        print(index, "-", item.value)
+    chosenM = list(MorphType)[int(input("Enter choice: "))] 
+    morphIter = 0
             
     ###############################################################################
     # PYTORCH
@@ -154,10 +175,16 @@ def main():
         print(np.amin(dist), np.amax(dist))
         dist = (dist < 200).astype("float64")
         
+        if morphIter > 0:
+            morphed = morph(output, chosenM, iterations=morphIter)
+        else:
+            morphed = np.copy(output)           
+                
         # Show the image
         cv2.imshow("Video", frame)
         cv2.imshow("Threshold", output)
-        cv2.imshow("Distance", dist)
+        # cv2.imshow("Distance", dist)
+        cv2.imshow("Morphed", morphed)
 
         # Wait 30 milliseconds, and grab any key presses
         key = cv2.waitKey(30)
@@ -165,6 +192,14 @@ def main():
         if key == ord("q"): user_thresh += 4
         if key == ord("a"): user_thresh -= 4
         user_thresh = max(user_thresh, 3)
+        
+        if key == ord("w"):
+            morphIter += 1
+            print("Morph:", morphIter)
+        if key == ord("s"):
+            morphIter -= 1
+            morphIter = max(0, morphIter)
+            print("Morph:", morphIter)
 
     # Release the capture and destroy the window
     capture.release()
