@@ -32,7 +32,7 @@ def morph(threshImage, morphType, ssize=(3,3), iterations=1):
         output = cv2.erode(threshImage, element, iterations=iterations)
     elif morphType == MorphType.DILATE:
         output = cv2.dilate(threshImage, element, iterations=iterations)
-        
+    
     return output    
     
 def threshold(image, thresh_type, user_value=128):
