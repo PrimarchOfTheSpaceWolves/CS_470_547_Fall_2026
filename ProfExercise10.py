@@ -233,7 +233,14 @@ def main():
         else:
             morphed = np.copy(output)   
             
-        regionColors = colorRegions(morphed)        
+        regionColors = colorRegions(morphed)  
+        
+        element = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, 
+                                            (morphSize,morphSize))
+        outTophat = cv2.morphologyEx(grayscale, cv2.MORPH_TOPHAT,
+                                     element, iterations=morphIter)
+        outBottomhat = cv2.morphologyEx(grayscale, cv2.MORPH_BLACKHAT,
+                                            element, iterations=morphIter)            
                 
         # Show the image
         cv2.imshow("Video", frame)
@@ -241,6 +248,8 @@ def main():
         # cv2.imshow("Distance", dist)
         cv2.imshow("Morphed", morphed)
         cv2.imshow("Colors", regionColors)
+        cv2.imshow("TOPHAT", outTophat)
+        cv2.imshow("BOTTOMHAT", outBottomhat)
 
         # Wait 30 milliseconds, and grab any key presses
         key = cv2.waitKey(30)
