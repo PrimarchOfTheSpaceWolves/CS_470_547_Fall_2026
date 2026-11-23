@@ -39,6 +39,10 @@ Basic Fourier experiments (professor edition).
 
 Examples of edge detection and Hough transform (professor edition).
 
+### ProfExercise10
+
+Examples of classical thresholding approaches (professor edition).
+
 ### ProfFreqHelper
 
 Utility functions for Fourier transforms and complex numbers (professor edition).
